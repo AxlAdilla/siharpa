@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block head %}
+<title>Siharpa - Home</title>
+{% endblock %}
+
+{% block body %}
+<section id="section_beranda">
+    <div id="bg_landing_image"></div>
+    <nav class="navbar navbar-expand-lg navbar-light mb-4">
+    <a href="{{url_for('index')}}">
+        <img src="{{url_for('static',filename='images/logo_4.png')}}" alt="Example Navbar 1" class="mr-2" height="30">
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown-7" aria-controls="navbarNavDropdown-7" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+    </button>
+        <div class="collapse navbar-collapse" id="navbarNavDropdown-7">
+            <ul class="navbar-nav mr-auto">
+                <!-- <li class="nav-item active">
+                    <a class="nav-link" href="#section_beranda">Beranda
+                    <span class="sr-only">(current)</span>
+                    </a>
+                </li> -->
+                {% if session.get('id_user') == True %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{url_for('dashboard')}}">Dashboard</a>
+                </li>
+                {% endif %}    
+            </ul>
+            {% if session.get('id_user') == True %}
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{url_for('logout')}}">
+                    <i class="fa fa-user"></i>
+                    Logout
+                    </a>
+                </li>
+            </ul>
+            {% else %}
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{url_for('login')}}">
+                    <i class="fa fa-user"></i>
+                    Login
+                    </a>
+                </li>
+            </ul>
+            {% endif %}
+        </div>
+    </nav>
+    <div id="container_beranda">
+        <div>
+            <img src="{{url_for('static',filename='images/logo.png')}}" alt="">
+            <p>
+                SIHARPA adalah Aplikasi Prediksi Harga Pangan berdasarkan harga pangan dimasa lalu dengan metode prediksi Jaringan Syaraf Tiruan, dimana komoditas pangan yang diprediksi merupakan komoditas pangan yang strategis dan didapat dari <a href="https://hargapangan.id">PIHPS Nasional</a> 
+            </p>
+            <span>
+                <a href="#section_fitur" class="btn btn-success">MULAI PREDIKSI <i class="fa fa-caret-right"></i></a>
+            </span>
+        </div>
+    </div>
+</section>
+<section id="section_fitur">
+    <div id="container_fitur">
+        <div class="container-fluid container_fitur">
+            <h1 id="header_fitur">FITUR</h1>
+            <div class="row" style="margin-top:25px">
+                <div class="col-12">
+                    <div class="row" style="width: 50%;margin:auto;">
+                        <div class="mobile col-md-2 col-sm-12">
+                            <div class="h-100 d-flex flex-column justify-content-center">
+                                <a class="border-circle" href="{{url_for('prediksi_nasional')}}">
+                                    <div>
+                                        <i class="fa fa-bank"></i>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-10 col-sm-12">
+                            <h3>Prediksi Nasional</h3>
+                            <p class="text-justify">Prediksi Nasional adalah Prediksi Harga Pangan Strategis secara rata-rata keseluruhan pasar di Indonesia</p>
+                        </div>
+                        <div class="desktop col-md-2 col-sm-12">
+                            <div class="h-100 d-flex flex-column justify-content-center">
+                                <a class="border-circle" href="{{url_for('prediksi_nasional')}}">
+                                    <div>
+                                        <i class="fa fa-bank"></i>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 ">
+                    <div class="row" style="width: 50%;margin:auto;">
+                        <div class="mobile col-md-2 col-sm-12">
+                            <div class="h-100 d-flex flex-column justify-content-center">
+                                <a class="border-circle" href="{{url_for('prediksi_daerah')}}">
+                                    <div>
+                                        <i class="fa fa-shopping-cart"></i>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-10 col-sm-12">
+                            <h3>Prediksi Daerah</h3>
+                            <p class="text-justify">Prediksi Daerah adalah Prediksi Harga Pangan Strategis berdasar harga di suatu pasar di daerah</p>
+                        </div>
+                        <div class="desktop col-md-2 col-sm-12">
+                            <div class="h-100 d-flex flex-column justify-content-center">
+                                <a class="border-circle" href="{{url_for('prediksi_daerah')}}">
+                                    <div>
+                                        <i class="fa fa-shopping-cart"></i>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 ">
+                    <div class="row" style="width: 50%;margin:auto;">
+                        <div class="mobile col-md-2 col-sm-12">
+                            <div class="h-100 d-flex flex-column justify-content-center">
+                                <a href="{{url_for('prediksi_import')}}"  class="border-circle">
+                                    <div>
+                                        <i class="fa fa-file-excel-o"></i>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-10 col-sm-12">
+                            <h3>Import Excel</h3>
+                            <p class="text-justify">Import Excel adalah Prediksi Harga Pangan Strategis berdasar File Excel User yang didapat dari <a target="_blank" href="https://hargapangan.id/tabel-harga/pasar-tradisional/daerah">PIHPS Nasional</a></p>
+                        </div>
+                        <div class="desktop col-md-2 col-sm-12">
+                            <div class="h-100 d-flex flex-column justify-content-center">
+                                <a href="{{url_for('prediksi_import')}}"  class="border-circle">
+                                    <div>
+                                        <i class="fa fa-file-excel-o"></i>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- <section id="section_prediksi">
+    <div id="container_prediksi">
+        <div class="col-sm-12 col-md-4">
+            <div id="bg_img_nasional"></div>
+        </div>
+        <div class="col-sm-12 col-md-4">
+            <div id="bg_img_daerah"></div>
+        </div>
+        <div class="col-sm-12 col-md-4">
+            <div id="bg_img_import"></div>
+        </div>
+    </div>
+</section> -->
+{% endblock %}
+
+{% block javascript %}
+
+{% endblock %}

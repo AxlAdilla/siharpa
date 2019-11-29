@@ -1,0 +1,162 @@
+{% extends "base_dashboard.html" %}
+
+{% block head %}
+<title>Siharpa - Pasar</title>
+<!-- <link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap4.min.css"> -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css">
+
+{% endblock %}
+
+{% block body %}
+<div class="main-content-container container-fluid px-4">
+    <div class="page-header row no-gutters py-4">
+        <div class="col-12 col-sm-4 text-center text-sm-left mb-0">
+            <span class="text-uppercase page-subtitle">Dashboard</span>
+            <h3 class="page-title">Pasar</h3>
+        </div>
+    </div>
+    <!-- End Page Header -->
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category,message in messages %}
+                {% if category == 'success' %}
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                        <i class="fa fa-check"></i>
+                        {{message}}
+                    </div>
+                {% else %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                        <i class="fa fa-exclamation-circle"></i>
+                        {{message}}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    <!-- Small Stats Blocks -->
+    <div class="row">
+        <div class="col">
+            <div class="card">
+                <div class="mx-4 my-4">
+                    <div class="mb-4 text-right">
+                        <button class="btn btn-success" onclick="tambahData()">+ Tambah Pasar</button>
+                    </div>
+                    <table id="myTable" class="table table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th>ID Pasar</th>
+                                <th>Kode Pasar</th>
+                                <th>Nama Pasar</th>
+                                <th>Nama Kabupaten</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pasar in pasars%}
+                            <tr>
+                                <td>{{pasar.id_pasar}}</td>
+                                <td>{{pasar.kode_pasar}}</td>
+                                <td>{{pasar.nama_pasar}}</td>
+                                <td>{{pasar.parent.nama_kabupaten}}</td>
+                                <td>
+                                    <button class="btn btn-warning" onclick="ubahData('{{pasar.id_pasar}}','{{pasar.kode_pasar}}','{{pasar.nama_pasar}}','{{pasar.kode_kabupaten}}')">
+                                        <i class="material-icons">
+                                            edit
+                                        </i>
+                                    </button>
+                                    <a href="{{url_for('pasar_delete',id=pasar.id_pasar)}}" class="btn btn-danger">
+                                        <i class="material-icons">
+                                            delete
+                                        </i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- End Small Stats Blocks -->
+{% endblock %}
+{% block modal %}
+<div class="modal fade" id="editorModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Tambah Pasar</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="" method="post" id="form_pasar_modal">
+                <input type="hidden" id="id_pasar_input" name="id_pasar">
+                <div class="modal-body">
+                    <div class="my-2">
+                        <label for="username_input">KODE PASAR</label>
+                        <input type="text" id="kode_pasar_input" name="kode_pasar" class="form-control" required placeholder="35">
+                    </div>
+                    <div class="my-2">
+                        <label for="username_input">NAMA PASAR</label>
+                        <input type="text" id="nama_pasar_input" name="nama_pasar" class="form-control" required placeholder="Pasar Malem">
+                    </div>
+                    <div class="my-2">
+                        <label for="username_input">NAMA KABUPATEN</label>
+                        <select class="form-control" name="kode_kabupaten" >
+                            {% for kabupaten in kabupatens %}
+                            <option class="opt_kabupaten" style="padding:5px" value="{{kabupaten.kode_kabupaten}}">{{kabupaten.nama_kabupaten}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="my-4">
+                        <input type="submit" value="TAMBAH" id="submit_input" class="btn btn-success btn-block">
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block javascript %}
+<script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+<script>
+    function ubahData(idPasar,kodePasar,namaPasar,kodeKabupaten){
+        document.getElementById('exampleModalLabel').innerHTML = 'Edit Pasar'
+        document.getElementById('kode_pasar_input').value = kodePasar
+        document.getElementById('nama_pasar_input').value = namaPasar
+        document.getElementById('id_pasar_input').value = idPasar
+        document.getElementById('submit_input').value = 'EDIT'
+        document.getElementById('form_pasar_modal').action="{{url_for('pasar_edit')}}"
+        var arrOfOptKab = document.getElementsByClassName('opt_kabupaten')
+        for(var i=0;i<(arrOfOptKab.length);i++ ){
+            if(arrOfOptKab[i].value == kodeKabupaten){
+                arrOfOptKab[i].selected = true
+            }
+        }
+        $("#editorModal").modal()
+    }
+    function tambahData(){
+        document.getElementById('exampleModalLabel').innerHTML = 'Tambah Provinsi'
+        document.getElementById('id_pasar_input').value = ''
+        document.getElementById('kode_pasar_input').value = ''
+        document.getElementById('nama_pasar_input').value = ''
+        document.getElementById('submit_input').value = 'TAMBAH'
+        document.getElementById('form_pasar_modal').action="{{url_for('pasar_post')}}"
+        var arrOfOptKab = document.getElementsByClassName('opt_kabupaten')
+        for(var i=0;i<(arrOfOptKab.length);i++ ){
+            arrOfOptKab[i].selected = false
+        }
+        $("#editorModal").modal()
+    }
+</script>
+{% endblock %}

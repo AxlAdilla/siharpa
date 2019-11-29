@@ -1,0 +1,224 @@
+{% extends "base_prediksi.html" %}
+
+{% block head %}
+<title>Siharpa - Prediksi Daerah</title>
+{% endblock %}
+
+{% block body %}
+<div class="main-content-container container-fluid px-4">
+    <div class="page-header row no-gutters py-4">
+        <div class="col-sm-12 col-md-9 mx-auto text-center text-sm-left mb-0">
+            <span class="text-uppercase page-subtitle">Prediksi Daerah</span>
+        </div>
+    </div>
+    <!-- End Page Header -->
+    <!-- Small Stats Blocks -->
+    <div class="row">
+        <div class="col-sm-12 col-md-9 mx-auto">
+            <div class="card">
+                <div class="mx-4 my-4">
+                    <form action="{{url_for('api_predict',jenis='daerah')}}" method="post" id="form_prediksi">
+                        <div class="row">
+                            <div class="my-2 col-sm-12">
+                                <label for="username_input">Komoditas</label>
+                                <select class="form-control" required name="id_komoditas" >
+                                    {% for komoditas in comodities %}
+                                    <option class="opt_komoditas" style="padding:5px" value="{{komoditas.id_komoditas}}">{{komoditas.nama_komoditas}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="my-2 col-sm-12">
+                                <label for="username_input">Provinsi</label>
+                                <select class="form-control" required name="kode_provinsi" onchange="get_kabupaten(this)">
+                                    <option value=""></option>
+                                    {% for provinsi in provincies %}
+                                    <option class="opt_provinsi" style="padding:5px" value="{{provinsi.kode_provinsi}}">{{provinsi.nama_provinsi}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="my-2 col-sm-12">
+                                <label for="username_input">Kabupaten</label>
+                                <select class="form-control" id="kabupaten_select" onchange="get_pasar(this)" required name="kode_kabupaten" >
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                            <div class="my-2 col-sm-12">
+                                <label for="username_input">Pasar</label>
+                                <select class="form-control" id="pasar_select" required name="kode_pasar" >
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                            <div class="my-2 col-sm-12 col-lg-12">
+                                <label for="username_input">Hari Prediksi</label>
+                                <input type="number" id="hari_prediksi_input" name="hari_prediksi" class="form-control" required placeholder="5" value="1" min="0">
+                            </div>
+                            <div class="my-2 col-sm-12 col-lg-12" >
+                                <input type="submit" id="prediksi_button" value="MULAI PREDIKSI" class="btn btn-success btn-block" >
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="my-4 mx-4">
+                    <canvas id="ctx" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- End Small Stats Blocks -->
+{% endblock %}
+{% block modal %}
+{% endblock %}
+{% block javascript %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+<script>
+    var select_kabupaten = document.getElementById('kabupaten_select')
+    var select_pasar = document.getElementById('pasar_select')
+
+    function get_kabupaten(elem){
+        console.log(elem.value)
+        select_kabupaten.innerHTML=''
+        select_pasar.innerHTML=''
+        url = '/get_option_kabupaten/'+elem.value
+        fetch(url).then((res)=>{
+            return res.json()
+        }).then((jsonRes)=>{
+            console.log(jsonRes)
+            /*
+            var option1 = document.createElement("option");
+            option1.text = '';
+            option1.value = '';
+            var option2 = document.createElement("option");
+            option2.text = '';
+            option2.value = '';
+            select_kabupaten.appendChild(option1);
+            select_pasar.appendChild(option2);
+            */
+            jsonRes.kabupaten.forEach(add_kab_child)
+        })
+    }
+
+    function add_kab_child(item,index){
+        var option = document.createElement("option");
+        option.text = item.nama_kabupaten;
+        option.value = item.kode_kabupaten;
+        select_kabupaten.appendChild(option);
+    }
+
+    function get_pasar(elem){
+        console.log(elem.value)
+        select_pasar.innerHTML=''
+        url = '/get_option_pasar/'+elem.value
+        fetch(url).then((res)=>{
+            return res.json()
+        }).then((jsonRes)=>{
+            console.log(jsonRes)
+            /*
+            var option = document.createElement("option");
+            option.text = '';
+            option.value = '';
+            select_pasar.appendChild(option);
+            */
+            jsonRes.pasar.forEach(add_pasar_child)
+        })
+    }
+
+    function add_pasar_child(item,index){
+        var option = document.createElement("option");
+        option.text = item.nama_pasar;
+        option.value = item.kode_pasar;
+        select_pasar.appendChild(option);
+    }
+    
+    form_prediksi = document.getElementById('form_prediksi')
+    form_prediksi.addEventListener('submit',function(e){
+        e.preventDefault()
+        swal.fire({
+            title: "Harap Tunggu",
+            text: "Untuk melakukan proses komputer butuh waktu beberapa detik",
+            icon: "info",
+            showCloseButton: false,
+            showCancelButton: false,
+            allowOutsideClick:false,
+            showConfirmButton:false,
+        });
+        console.log('test')
+        form_data = new FormData(form_prediksi)
+        url = form_prediksi.getAttribute("action");
+        console.log([form_data.get('type'),url])
+        fetch(url,{
+            method:'post',
+            body:form_data
+        }).then((res)=>{
+            return res.json()
+        }).then((jsonRes)=>{
+            if(jsonRes.messages == 'Success'){
+
+                swal.fire({
+                    title: "Success",
+                    text: "Prediksi sudah selesai dikalkulasi \n Terima Kasih sudah menunggu",
+                    icon: "success",
+                showConfirmButton: true,
+                });
+
+                console.log(jsonRes)
+                var ctxLine = document.getElementById("ctx").getContext("2d");
+                if(window.bar != undefined) 
+                window.bar.destroy(); 
+                window.bar = new Chart(ctxLine, {
+                    type: 'line',
+                    data: {
+                        labels: jsonRes.tanggal,
+                        datasets: [{
+                            label: 'Prediksi',
+                            data: jsonRes.prediksi,
+                            pointRadius:3,
+                            fill:false,
+                            lineTension:0,
+                            borderWidth:2,
+                            borderColor: [
+                                'rgba(255, 99, 132, 1)',
+                            ]
+                        },{
+                            label: 'Harga Asli',
+                            data: jsonRes.data,
+                            pointRadius:3,
+                            fill:false,
+                            lineTension:0,
+                            borderWidth:2,
+                            borderColor: [
+                            'rgba(132, 99, 255, 1)',
+                            ]
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    beginAtZero: false
+                                }
+                            }]
+                        }
+                    }
+                });
+
+            }else{
+                swal.fire({
+                    title: "Error",
+                    text: jsonRes.messages,
+                    icon: "error",
+                showConfirmButton: true,
+                });
+                var ctxLine = document.getElementById("ctx").getContext("2d");
+                if(window.bar != undefined) 
+                window.bar.destroy(); 
+            }
+
+            
+
+        })
+    })
+</script>
+{% endblock %}

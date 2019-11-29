@@ -1,0 +1,148 @@
+{% extends "base_prediksi.html" %}
+
+{% block head %}
+<title>Siharpa - Prediksi Import Excel</title>
+{% endblock %}
+
+{% block body %}
+<div class="main-content-container container-fluid px-4">
+    <div class="page-header row no-gutters py-4">
+        <div class="col-sm-12 col-md-9 mx-auto text-center text-sm-left mb-0">
+            <span class="text-uppercase page-subtitle">Prediksi Import Excel</span>
+        </div>
+    </div>
+    <!-- End Page Header -->
+    <!-- Small Stats Blocks -->
+    <div class="row">
+        <div class="col-sm-12 col-md-9 mx-auto">
+            <div class="card">
+                <div class="mx-4 my-4">
+                    <form action="{{url_for('api_predict',jenis='import')}}" method="post" id="form_prediksi" enctype="multipart/form-data">
+                        <div class="row">
+                            <div class="my-2 col-sm-12">
+                                <label for="username_input">Upload File Excel</label>
+                                    <!-- <input type="file" class="custom-file-input" name="excel" accept=".xls,xlsx" id="customFile">
+                                    <label class="custom-file-label" for="customFile">Choose file</label> -->
+                                <input type="file" name="excel" class=" form-control col-sm-12" id="custom_file_input" accept=".xls,xlsx" id="">
+                            </div>
+                            <div class="my-2 col-sm-12 col-lg-12">
+                                <label for="username_input">Hari Prediksi</label>
+                                <input type="number" id="hari_prediksi_input" name="hari_prediksi" class="form-control" required placeholder="5" value="1" min="0">
+                            </div>
+                            <div class="my-2 col-sm-12 col-lg-12" >
+                                <input type="submit" id="prediksi_button" value="MULAI PREDIKSI" class="btn btn-success btn-block" >
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="my-4 mx-4">
+                    <canvas id="ctx" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- End Small Stats Blocks -->
+{% endblock %}
+{% block modal %}
+{% endblock %}
+{% block javascript %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+<!-- <script src="{{url_for('static',filename='dropzonejs/dropzone.js')}}"></script> -->
+<script>
+    //var myDropzone = new Dropzone("div#myId", { url: "/file/post"});
+</script>
+<script>
+    form_prediksi = document.getElementById('form_prediksi')
+    form_prediksi.addEventListener('submit',function(e){
+        e.preventDefault()
+        
+        swal.fire({
+            title: "Harap Tunggu",
+            text: "Untuk melakukan proses komputer butuh waktu beberapa detik",
+            icon: "info",
+            showCloseButton: false,
+            showCancelButton: false,
+            allowOutsideClick:false,
+            showConfirmButton:false,
+        });
+        
+        console.log('test')
+        form_data = new FormData(form_prediksi)
+        url = form_prediksi.getAttribute("action");
+        console.log([form_data.get('type'),url])
+        fetch(url,{
+            method:'post',
+            body:form_data
+        }).then((res)=>{
+            return res.json()
+        }).then((jsonRes)=>{
+            console.log(jsonRes)
+
+            if(jsonRes.messages == 'Success'){
+
+                swal.fire({
+                    title: "Success",
+                    text: "Prediksi sudah selesai dikalkulasi \n Terima Kasih sudah menunggu",
+                    icon: "success",
+                    showConfirmButton: true,
+                });
+                console.log(jsonRes)
+                var ctxLine = document.getElementById("ctx").getContext("2d");
+                if(window.bar != undefined) 
+                window.bar.destroy(); 
+                window.bar = new Chart(ctxLine, {
+                    type: 'line',
+                    data: {
+                        labels: jsonRes.tanggal,
+                        datasets: [{
+                            label: 'Prediksi',
+                            data: jsonRes.prediksi,
+                            pointRadius:3,
+                            fill:false,
+                            lineTension:0,
+                            borderWidth:2,
+                            borderColor: [
+                                'rgba(255, 99, 132, 1)',
+                            ]
+                        },{
+                            label: 'Harga Asli',
+                            data: jsonRes.data,
+                            pointRadius:3,
+                            fill:false,
+                            lineTension:0,
+                            borderWidth:2,
+                            borderColor: [
+                                'rgba(132, 99, 255, 1)',
+                            ]
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    beginAtZero: false
+                                }
+                            }]
+                        }
+                    }
+                });
+            }else{
+                swal.fire({
+                    title: "Error",
+                    text: jsonRes.messages,
+                    icon: "error",
+                showConfirmButton: true,
+                });
+                var ctxLine = document.getElementById("ctx").getContext("2d");
+                if(window.bar != undefined) 
+                window.bar.destroy(); 
+            }
+
+
+        })
+    })
+</script>
+{% endblock %}

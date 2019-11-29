@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    
+    <link rel='icon' href="{{url_for('static',filename='images/logo.png')}}" type='image/x-icon'/ >
+    <link href="https://fonts.googleapis.com/css?family=Montserrat&display=swap" rel="stylesheet">
+    <link href="https://use.fontawesome.com/releases/v5.0.6/css/all.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" id="main-stylesheet" data-version="1.1.0" href="{{url_for('static',filename='shards_dashboard/styles/shards-dashboards.1.1.0.min.css')}}">
+    <link rel="stylesheet" href="{{url_for('static',filename='shards_dashboard/styles/extras.1.1.0.min.css')}}">
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+    <link rel="stylesheet" href="{{url_for('static',filename='css/style_dashboard.css')}}">
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <div class="loader">
+        <div class="page-loader"></div>
+    </div>
+    <div class="container-fluid">
+        <div class="row">
+            <main class="main-content col-sm-12 p-0">
+                <div class="main-navbar sticky-top bg-white">
+                    <nav class="navbar align-items-stretch navbar-light flex-md-nowrap p-0">
+                        <div class="d-flex flex-column justify-content-center mx-3">
+                            <a href="{{url_for('index')}}" style="font-size: x-large;">
+                                <i class="material-icons">
+                                    arrow_back
+                                </i>
+                            </a>
+                        </div>
+                    </nav>
+                </div>
+                {% block body %}{% endblock %}
+            </main>
+        </div>
+    </div>
+    {% block modal %}{% endblock %}
+<!-- Javascript Code -->
+<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/shards-ui@latest/dist/js/shards.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sharrre/2.0.1/jquery.sharrre.min.js"></script>
+<script src="{{url_for('static',filename='shards_dashboard/scripts/extras.1.1.0.min.js')}}"></script>
+<script src="{{url_for('static',filename='shards_dashboard/scripts/shards-dashboards.1.1.0.min.js')}}"></script>
+<script src="{{url_for('static',filename='js/main_dashboard.js')}}"></script>
+{% block javascript %}{% endblock %}
+</body>
+</html>

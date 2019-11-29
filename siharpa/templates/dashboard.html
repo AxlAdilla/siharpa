@@ -1,0 +1,88 @@
+{% extends "base_dashboard.html" %}
+
+{% block head %}
+<title>Siharpa - Home</title>
+{% endblock %}
+
+{% block body %}
+<div class="main-content-container container-fluid px-4">
+    <div class="page-header row no-gutters py-4">
+        <div class="col-12 col-sm-4 text-center text-sm-left mb-0">
+            <span class="text-uppercase page-subtitle">Dashboard</span>
+            <!-- <h3 class="page-title">Blog Overview</h3> -->
+        </div>
+    </div>
+    <!-- End Page Header -->
+    <!-- Small Stats Blocks -->
+    <div class="row">
+        <div class="col-lg-4 col-md-4 col-sm-6 mb-4">
+            <div class="stats-small stats-small--1 card card-small">
+                <div class="card-body p-0 d-flex">
+                    <div class="d-flex flex-column m-auto">
+                        <div class="stats-small__data text-center">
+                            <span class="stats-small__label text-uppercase">Provinsi</span>
+                            <h6 class="stats-small__value count my-3">{{provinsi}}</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-4 col-sm-6 mb-4">
+            <div class="stats-small stats-small--1 card card-small">
+                <div class="card-body p-0 d-flex">
+                    <div class="d-flex flex-column m-auto">
+                        <div class="stats-small__data text-center">
+                            <span class="stats-small__label text-uppercase">Kabupaten</span>
+                            <h6 class="stats-small__value count my-3">{{kabupaten}}</h6>
+                        </div>
+                    </div>  
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-4 col-sm-6 mb-4">
+            <div class="stats-small stats-small--1 card card-small">
+                <div class="card-body p-0 d-flex">
+                    <div class="d-flex flex-column m-auto">
+                        <div class="stats-small__data text-center">
+                            <span class="stats-small__label text-uppercase">Pasar</span>
+                            <h6 class="stats-small__value count my-3">{{pasar}}</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-4 col-sm-6 mb-4">
+            <div class="stats-small stats-small--1 card card-small">
+                <div class="card-body p-0 d-flex">
+                    <div class="d-flex flex-column m-auto">
+                        <div class="stats-small__data text-center">
+                            <span class="stats-small__label text-uppercase">Komoditas</span>
+                            <h6 class="stats-small__value count my-3">{{komoditas}}</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-8 col-md-8 col-sm-12 mb-4">
+            <div class="stats-small stats-small--1 card card-small">
+                <div class="card-body p-0 d-flex">
+                    <div class="d-flex flex-column m-auto">
+                        <div class="stats-small__data text-center">
+                            <span class="stats-small__label text-uppercase">Prediksi</span>
+                            <div class="my-3">
+                                <h6 >Terakhir diupdate {{terakhir_update}}
+                                </h6>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Small Stats Blocks -->
+</div>
+
+{% endblock %}
+
+{% block javascript %}
+{% endblock %}

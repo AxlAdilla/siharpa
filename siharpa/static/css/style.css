@@ -1,0 +1,234 @@
+html {
+    scroll-behavior: smooth;
+    
+}
+body{
+    overflow-x: hidden;
+    background-color: #f5f6f8;
+}
+/* LG */
+@media screen and (min-width:780px){
+    #container_beranda{
+        position: absolute;
+    }
+    #container_beranda>div>span>button{
+        font-size: 16pt;
+    }
+    #container_beranda>div>p{
+        font-size: 18pt;
+    }
+    .container_fitur{
+        height: 80%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    .border-circle{
+        width: 65px;
+        height: 65px;
+        margin: 15px auto;
+    }
+    .mobile{
+        display: none;
+    }
+}
+/* SM */
+@media screen and (max-width:425px){
+    #container_beranda>div>img{
+        width: 30vw;
+    }
+    #container_beranda{
+        padding-bottom: 200px;
+    }
+    .border-circle{
+        width: 50px;
+        height: 50px;
+        margin: 15px auto;
+    }
+    .border-circle>div{
+        font-size: 10pt !important;
+    }
+    .desktop{
+        display: none;
+    }
+}
+/* tablet */
+@media screen and (min-width:768px){
+    #container_beranda>div>img{
+        width: 15vw;
+    }
+    .container_fitur{
+        height: 80%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    .border-circle{
+        width: 35px;
+        height: 35px;
+        margin: 0px 10px;
+    }
+    .border-circle>div{
+        font-size: 10pt !important;
+    }
+    .mobile{
+        display: none;
+    }
+}
+section{
+    min-height: 100vh;
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+}
+nav{
+    z-index: 999;
+}
+#bg_landing_image{
+    position: absolute;
+    width: 100%;
+    min-height: 100%;
+    background-image: url(../images/landing-page.jpg) , linear-gradient(to bottom right,#e9ffeddd,#e9ffeddd);
+    /* background-image: url(../images/landing-page.jpg) , linear-gradient(to bottom right,#19319edd,#5070ffdd); */
+    background-blend-mode: overlay;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+    filter: blur(2px);
+    -webkit-filter: blur(2px);
+    z-index: -999;
+}
+#container_beranda{
+    min-height: 100%;
+    z-index: 99;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+#header_fitur{
+    margin-top: 15px;
+    margin-bottom: 25px;
+    text-align: center;
+}
+#container_beranda>div{
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+#container_beranda>div>p{
+    width: 80%;
+    text-align: justify;
+    display: block;
+    margin: 10px auto ;
+    font-family:  'Montserrat', sans-serif;
+}
+nav,p,label,#login_card_title{
+    font-family:  'Montserrat', sans-serif;
+}
+#login_card_title{
+    font-weight: 800;
+}
+a{
+    font-weight: 900;
+    transition: all ease-in-out 0.3s;
+}
+a:hover{
+    font-weight: 900;
+    text-decoration: none;
+}
+#container_beranda>div>img{
+    display: block;
+    height: auto;
+    margin: 10px auto;
+}
+#container_beranda>div>span{
+    text-align: center;
+    margin: 10px auto; 
+}
+#section_fitur{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+#container_fitur{
+    height: 80%;
+}
+.border-circle{
+    border: 2px rgba(23, 198, 113, 0.452) solid ;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    transition: all 500ms ease-in-out;
+    flex-direction: column;
+    justify-content: center;
+    background-color: #f5f6f8 ;
+    
+}
+.border-circle:hover{
+    border: 2px #f5f6f8 solid ;
+    background-color: #17C671 ;
+
+}
+.border-circle:hover>div{
+    color:#f5f6f8;
+}
+
+.border-circle>div{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    font-size: 16pt;
+    color:#17C671;
+}
+.text-center{
+    text-align: center;
+}
+.text-justify{
+    text-align: justify;
+}
+#section_login{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-image: linear-gradient(to right bottom,rgb(145, 240, 192),rgb(171, 215, 245));
+}
+#container_login{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+#section_prediksi{
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+#container_prediksi{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+}
+#container_prediksi>div{
+    height: 100%;
+    width: 100%;
+    padding:0px
+}
+#container_prediksi>div>div{
+    height: 70vh;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+#bg_img_nasional{
+    background-image: url(../images/prediksi_nasional_sm.jpg);
+}
+#bg_img_import{
+    background-image: url(../images/prediksi_import.jpg);
+}
+#bg_img_daerah{
+    background-image: url(../images/prediksi_daerah_sm.jpg);
+}

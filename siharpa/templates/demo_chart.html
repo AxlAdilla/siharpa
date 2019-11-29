@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block head %}
+<title>Siharpa</title>
+<link rel="stylesheet" href="{{url_for('static',filename='chartist/chartist.min.css')}}">
+<style>
+/* Use this selector to override the line style on a given series */
+.ct-series-a .ct-line {
+    /* Set the colour of this series line */
+    stroke: rgba(0, 184, 216, 0.671);
+    /* Control the thikness of your lines */
+    stroke-width: 5px;
+}
+
+/* This selector overrides the points style on line charts. Points on line charts are actually just very short strokes. This allows you to customize even the point size in CSS */
+.ct-series-a .ct-point {
+    /* Colour of your points */
+    stroke:  #00B8D8;
+    /* Size of your points */
+    stroke-width: 20px;
+}
+
+</style>
+{% endblock %}
+
+{% block body %}
+<h1 style="text-align:center">Demo Chart</h1>
+<div class="ct-chart ct-octave"></div>
+{% endblock %}
+
+{% block javascript %}
+
+<script src="{{url_for('static',filename='chartist/chartist.min.js')}}"></script>
+<script src="{{url_for('static',filename='js/main.js')}}"></script>
+<script>
+    var data = {
+        // A labels array that can contain any sort of values
+        //labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri','Sat'],
+        // Our series array that contains series objects or in this case series data arrays
+        series: [
+            [5, 2, 4, 2, 0]
+        ]
+    };
+    var options = {
+        //width: 500,
+        //height: 300,
+        lineSmooth: false,
+        axisX: {
+            // We can disable the grid for this axis
+            showGrid: false
+        },
+    };
+    
+    // Create a new line chart object where as first parameter we pass in a selector
+    // that is resolving to our chart container element. The Second parameter
+    // is the actual data object.
+    new Chartist.Line('.ct-chart', data,options);
+</script>
+{% endblock %}

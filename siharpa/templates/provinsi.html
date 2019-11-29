@@ -1,0 +1,142 @@
+{% extends "base_dashboard.html" %}
+
+{% block head %}
+<title>Siharpa - Provinsi</title>
+<!-- <link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap4.min.css"> -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css">
+
+{% endblock %}
+
+{% block body %}
+<div class="main-content-container container-fluid px-4">
+    <div class="page-header row no-gutters py-4">
+        <div class="col-12 col-sm-4 text-center text-sm-left mb-0">
+            <span class="text-uppercase page-subtitle">Dashboard</span>
+            <h3 class="page-title">Provinsi</h3>
+        </div>
+    </div>
+    <!-- End Page Header -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category,message in messages %}
+                {% if category == 'success' %}
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                        <i class="fa fa-check"></i>
+                        {{message}}
+                    </div>
+                {% else %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                        <i class="fa fa-exclamation-circle"></i>
+                        {{message}}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    <!-- Small Stats Blocks -->
+    <div class="row">
+        <div class="col">
+            <div class="card">
+                <div class="mx-4 my-4">
+                    <div class="mb-4 text-right">
+                        <button class="btn btn-success" onclick="tambahData()">+ Tambah Provinsi</button>
+                    </div>
+                    <table id="myTable" class="table table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th>ID Provinsi</th>
+                                <th>Kode Provinsi</th>
+                                <th>Nama Provinsi</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for provinsi in provincies%}
+                            <tr>
+                                <td>{{provinsi.id_provinsi}}</td>
+                                <td>{{provinsi.kode_provinsi}}</td>
+                                <td>{{provinsi.nama_provinsi}}</td>
+                                <td>
+                                    <button class="btn btn-warning" data-id-provinsi="{{provinsi.id_provinsi}}" data-kode-provinsi="{{provinsi.kode_provinsi}}" data-nama-provinsi="{{provinsi.nama_provinsi}}" onclick="ubahData('{{provinsi.id_provinsi}}','{{provinsi.kode_provinsi}}','{{provinsi.nama_provinsi}}')">
+                                        <i class="material-icons">
+                                            edit
+                                        </i>
+                                    </button>
+                                    <a href="{{url_for('provinsi_delete',id=provinsi.id_provinsi)}}" class="btn btn-danger">
+                                        <i class="material-icons">
+                                            delete
+                                        </i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- End Small Stats Blocks -->
+{% endblock %}
+{% block modal %}
+<div class="modal fade" id="editorModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Tambah Provinsi</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="" method="post" id="form_provinsi_modal">
+                <input type="hidden" id="id_provinsi_input" name="id_provinsi">
+                <div class="modal-body">
+                    <div class="my-2">
+                        <label for="username_input">KODE PROVINSI</label>
+                        <input type="text" id="kode_provinsi_input" name="kode_provinsi" class="form-control" required placeholder="35">
+                    </div>
+                    <div class="my-2">
+                        <label for="username_input">NAMA PROVINSI</label>
+                        <input type="text" id="nama_provinsi_input" name="nama_provinsi" class="form-control" required placeholder="JAWA TENGGARA">
+                    </div>
+                    <div class="my-4">
+                        <input type="submit" value="TAMBAH" id="submit_input" class="btn btn-success btn-block">
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block javascript %}
+<script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+<script>
+    function ubahData(idProvinsi,kodeProvinsi,namaProvinsi){
+        console.log(idProvinsi,kodeProvinsi,namaProvinsi)
+        document.getElementById('exampleModalLabel').innerHTML = 'Edit Provinsi'
+        document.getElementById('kode_provinsi_input').value = kodeProvinsi
+        document.getElementById('nama_provinsi_input').value = namaProvinsi
+        document.getElementById('id_provinsi_input').value = idProvinsi
+        document.getElementById('submit_input').value = 'EDIT'
+        document.getElementById('form_provinsi_modal').action="{{url_for('provinsi_edit')}}"
+        $("#editorModal").modal()
+    }
+    function tambahData(){
+        document.getElementById('exampleModalLabel').innerHTML = 'Tambah Provinsi'
+        document.getElementById('id_provinsi_input').value = ''
+        document.getElementById('kode_provinsi_input').value = ''
+        document.getElementById('nama_provinsi_input').value = ''
+        document.getElementById('submit_input').value = 'TAMBAH'
+        document.getElementById('form_provinsi_modal').action="{{url_for('provinsi_post')}}"
+        $("#editorModal").modal()
+    }
+</script>
+{% endblock %}

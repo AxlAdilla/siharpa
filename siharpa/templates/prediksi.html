@@ -1,0 +1,240 @@
+{% extends "base_dashboard.html" %}
+
+{% block head %}
+<title>Siharpa - Prediksi</title>
+<!-- <link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap4.min.css"> -->
+<!-- <link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css"> -->
+<style>
+    #loading_prediksi{
+        position: fixed;
+        z-index: 9999;
+        top:0;
+        left:0;
+        right:0;
+        bottom:0;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="main-content-container container-fluid px-4">
+    <div class="page-header row no-gutters py-4">
+        <div class="col-12 col-sm-4 text-center text-sm-left mb-0">
+            <span class="text-uppercase page-subtitle">Dashboard</span>
+            <h3 class="page-title">Konfigurasi Prediksi</h3>
+        </div>
+    </div>
+    <!-- End Page Header -->
+    <div class="alert alert-success fade " id="alert_sukses" role="alert">
+        <i class="fa fa-check"></i>
+        Sukses Merubah Konfigurasi
+    </div>
+    <!-- Small Stats Blocks -->
+    <div class="row">
+        <div class="col">
+            <div class="card">
+                
+                <div class="mx-4 my-4">
+                    <form action="{{url_for('prediksi_post')}}" id="form_prediksi" method="post">
+                        <div class="row">
+                            <div class="my-2 col-sm-6 col-lg-3">
+                                <label for="username_input">Neuron Input</label>
+                                <input type="number" id="neuron_input_input" value="{{prediksi.neuron_input}}" name="neuron_input" class="form-control" required placeholder="5">
+                            </div>
+                            <div class="my-2 col-sm-6 col-lg-3">
+                                <label for="username_input">Neuron Hidden</label>
+                                <input type="number" id="neuron_hidden_input" value="{{prediksi.neuron_hidden}}" name="neuron_hidden" class="form-control" required placeholder="2">
+                            </div>
+                            <div class="my-2 col-sm-6 col-lg-3">
+                                <label for="username_input">Epoh</label>
+                                <input type="number" id="epoh_input" name="epoh" value="{{prediksi.epoh}}"  class="form-control" required placeholder="500">
+                            </div>
+                            <div class="my-2 col-sm-6 col-lg-3">
+                                <label for="username_input">Learn Rate</label>
+                                <input step="0.1" type="number" id="learn_rate_input" value="{{prediksi.learn_rate}}"  name="learn_rate" class="form-control" required placeholder="0.5">
+                            </div>
+                            <div class="my-2 col-sm-6 col-lg-3">
+                                <label for="username_input">Hidden Layer</label>
+                                <input type="number" id="hidden_layer_input" name="hidden_layer" value="{{prediksi.hidden_layer}}"  class="form-control" required placeholder="2">
+                            </div>
+                            <div class="my-2 col-sm-6 col-lg-3">
+                                <label for="username_input">Hari Prediksi</label>
+                                <input type="number" id="hari_prediksi_input" name="hari_prediksi" class="form-control" required placeholder="5" value="1" min="0">
+                            </div>
+                            <div class="my-2 col-sm-12 col-lg-3">
+                                <label for="username_input">Normalisasi</label>
+                                <select class="form-control" required name="normalisasi"  >
+                                    
+                                    {% for normalisasi in normalisasis%}
+                                        {% if(prediksi.normalisasi == normalisasi.val ) %}
+                                            <option class="opt_normalisasi" style="padding:5px" selected value="{{normalisasi.val}}">{{normalisasi.text}}</option>
+                                        {% else %}
+                                            <option class="opt_normalisasi" style="padding:5px" value="{{normalisasi.val}}">{{normalisasi.text}}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                
+                                </select>
+                            </div>
+                            <div class="my-2 col-sm-12 col-lg-3">
+                                <label for="username_input">Komoditas</label>
+                                <select class="form-control" required name="id_komoditas" >
+                                    {% for komoditas in comodities %}
+                                    <option class="opt_komoditas" style="padding:5px" value="{{komoditas.id_komoditas}}">{{komoditas.nama_komoditas}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="my-2 col-sm-12 col-lg-12" >
+                                <input type="hidden" name="type" id="type_hidden">
+                                <input type="submit" id="mulai_prediksi_button" value="MULAI PREDIKSI" class="btn btn-success btn-block" >
+                            </div>
+                            <div class="my-2 col-sm-12 col-lg-12" >
+                                <input type="submit" id="simpan_konfigurasi_button" value="SIMPAN KONFIGURASI" class="btn btn-info btn-block" >
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="my-4 mx-4">
+                    <!-- <div class="alert alert-warning text-center alert-dismissible fade show" role="alert">
+                        <i class="fa fa-warning"></i>
+                        Silakan Prediksi Terlebih Dahulu !
+                    </div> -->
+                    <!-- <div class="text-center" id="loading_prediksi">
+                        <div id="loading"></div>
+                    </div> -->
+                    <canvas id="ctx" width="400" height="200"></canvas>
+                    <div class="text-right text-montserrat mt-3">Akurasi Jaringan : <span id="akurasi_holder">0</span></div>
+                    <div class="text-right text-montserrat mt-1">Waktu Penghitungan : <span id="waktu_holder">0</span> Detik</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- End Small Stats Blocks -->
+{% endblock %}
+
+{% block javascript %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+<script>
+    form_prediksi = document.getElementById('form_prediksi')
+    mulai_prediksi = document.getElementById('mulai_prediksi_button')
+    loading_prediksi = document.getElementById('loading_prediksi')
+    mulai_prediksi.addEventListener('click',function(e){
+        swal.fire({
+            title: "Harap Tunggu",
+            text: "Untuk melakukan proses komputer butuh waktu beberapa detik",
+            icon: "info",
+            showCloseButton: false,
+            showCancelButton: false,
+            allowOutsideClick:false,
+            showConfirmButton:false,
+        });
+        url = '/api/predict/konfigurasi'
+        document.getElementById('type_hidden').value="MULAI PREDIKSI"
+        form_prediksi.setAttribute("action",url)
+    })
+    simpan_konfigurasi = document.getElementById('simpan_konfigurasi_button')
+    simpan_konfigurasi.addEventListener('click',function(e){
+        url = '/prediksi'
+        document.getElementById('type_hidden').value="SIMPAN KONFIGURASI"
+        form_prediksi.setAttribute("action",url)
+    })
+    form_prediksi.addEventListener('submit',function(e){
+        e.preventDefault()
+        console.log('test')
+        form_data = new FormData(form_prediksi)
+        url = form_prediksi.getAttribute("action");
+        console.log([form_data.get('type'),url])
+        if(form_data.get('type') == "MULAI PREDIKSI"){
+            fetch(url,{
+                method:'post',
+                body:form_data
+            }).then((res)=>{
+                return res.json()
+            }).then((jsonRes)=>{
+                if(jsonRes.messages == 'Success'){
+
+                    swal.fire({
+                        title: "Success",
+                        text: "Prediksi sudah selesai dikalkulasi \n Terima Kasih sudah menunggu",
+                        icon: "success",
+                        showConfirmButton: true,
+                    });
+                    console.log(jsonRes)
+                    var ctxLine = document.getElementById("ctx").getContext("2d");
+                    if(window.bar != undefined) 
+                    window.bar.destroy(); 
+                    window.bar = new Chart(ctxLine, {
+                        type: 'line',
+                        data: {
+                            labels: jsonRes.tanggal,
+                            datasets: [{
+                                label: 'Prediksi',
+                                data: jsonRes.prediksi,
+                                pointRadius:3,
+                                fill:false,
+                                lineTension:0,
+                                borderWidth:2,
+                                borderColor: [
+                                    'rgba(255, 99, 132, 1)',
+                                ]
+                            },{
+                                label: 'Harga Asli',
+                                data: jsonRes.data,
+                                pointRadius:3,
+                                fill:false,
+                                lineTension:0,
+                                borderWidth:2,
+                                borderColor: [
+                                    'rgba(132, 99, 255, 1)',
+                                ]
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                yAxes: [{
+                                    ticks: {
+                                        beginAtZero: false
+                                    }
+                                }]
+                            }
+                        }
+                    });
+                    document.getElementById('akurasi_holder').innerHTML = jsonRes.akurasi
+                    document.getElementById('waktu_holder').innerHTML = jsonRes.waktu
+
+                }else{
+                    swal.fire({
+                        title: "Error",
+                        text: jsonRes.messages,
+                        icon: "success",
+                        showConfirmButton: true,
+                    });
+                    console.log(jsonRes)
+                    var ctxLine = document.getElementById("ctx").getContext("2d");
+                    if(window.bar != undefined) 
+                    window.bar.destroy();
+                }
+            })
+        }else{
+            fetch(url,{
+                method:'post',
+                body:form_data
+            }).then((res)=>{
+                return res.json()
+            }).then((jsonRes)=>{
+                console.log(jsonRes)
+                document.getElementById('alert_sukses').classList.add('show')
+                setTimeout(function(){
+                    document.getElementById('alert_sukses').classList.remove('show')
+                },2000)
+            }) 
+        }
+    })
+    /* 
+    
+    */
+    
+</script>
+{% endblock %}

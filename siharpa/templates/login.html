@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block head %}
+<title>Siharpa - Home</title>
+{% endblock %}
+
+{% block body %}
+<section id="section_login">
+    <div id="container_login">
+        <div class="col-sm-12 col-md-6">
+            <div class="card">
+                <div class="card-header text-center" id="login_card_title">
+                    LOGIN
+                </div>
+                <div class="card-body">
+                    <form action="" method="post">
+                        <div class="container-fluid">
+                            <div class="form-group col-sm-12">
+                                <label for="username_input">EMAIL</label>
+                                <input type="email" id="email_input" class="form-control" name="email" required placeholder="example@mail.dummy">
+                            </div>
+                            <div class="form-group col-sm-12">
+                                <label for="username_input">PASSWORD</label>
+                                <input type="password" id="password_input" class="form-control" name="password" required placeholder="*********">
+                            </div>
+                            <!-- <div class="form-group col-sm-12">
+                                <small>
+                                    <p class="text-right"><a href="{{url_for('lupa_password')}}">Lupa Password</a></p>
+                                </small>
+                            </div> -->
+                            {% with messages = get_flashed_messages(with_categories=true) %}
+                                {% if messages %}
+                                    {% for category,message in messages %}
+                                    <div class="form-group col-sm-12">
+
+                                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true">×</span>
+                                            </button>
+                                            <i class="fa fa-exclamation-circle"></i>
+                                            {{message}}
+                                        </div>
+                                    </div>
+
+                                    {% endfor %}
+                                {% endif %}
+                            {% endwith %}
+                            <div class="form-group col-sm-12 text-center">
+                                <input type="submit" value="LOGIN" class="btn btn-block btn-success">
+                            </div>
+                            <!-- <small>
+                                <p class="text-center">Belum Punya Akun? <a href="{{url_for('daftar_baru')}}">Daftar Disini</a></p>
+                            </small> -->
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block javascript %}
+
+{% endblock %}

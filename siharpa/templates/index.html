@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block head %}
+<title>Siharpa</title>
+<link rel="stylesheet" href="{{url_for('static',filename='chartist/chartist.min.css')}}">
+<style>
+    #loading_notification{
+        position: fixed;
+        width: 500px;
+        height: 200px;
+        top: 50%;
+        left: 50%;
+        background-color: white;
+        box-shadow: 0 0 10px 2px rgba(179, 233, 243, 0.671);
+        border-radius: 10px;
+        margin-top: -100px; /* Negative half of height. */
+        margin-left: -250px; /* Negative half of width. */
+    }
+    /* Use this selector to override the line style on a given series */
+    .ct-series-a .ct-line {
+        /* Set the colour of this series line */
+        stroke: rgba(0, 184, 216, 0.671);
+        /* Control the thikness of your lines */
+        stroke-width: 2px;
+    }
+
+    /* This selector overrides the points style on line charts. Points on line charts are actually just very short strokes. This allows you to customize even the point size in CSS */
+    .ct-series-a .ct-point {
+        /* Colour of your points */
+        stroke:  #00B8D8;
+        /* Size of your points */
+        stroke-width: 5px;
+    }
+
+    .ct-series-b .ct-line {
+        /* Set the colour of this series line */
+        stroke: rgba(196, 24, 61, 0.616);
+        /* Control the thikness of your lines */
+        stroke-width: 2px;
+    }
+
+    /* This selector overrides the points style on line charts. Points on line charts are actually just very short strokes. This allows you to customize even the point size in CSS */
+    .ct-series-b .ct-point {
+        /* Colour of your points */
+        stroke:  #C4183C;
+        /* Size of your points */
+        stroke-width: 5px;
+    }
+
+    .ct-label.ct-label.ct-horizontal.ct-end {
+        position: relative;
+        justify-content: flex-end;
+        text-align: right;
+        transform-origin: 100% 0;
+        transform: translate(-100%) rotate(-45deg);
+        white-space:nowrap;
+    }
+
+    .hidden{
+        display:none;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+        <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+{% endif %}
+{% endwith %}
+<h1 style="text-align:center">Prediksi</h1>
+<form action="{{url_for('api_predict')}}" method="POST" id="form_prediksi">
+    <div style="text-align:center">
+        <div style="padding:15px">
+            <select  style="width: 80vw;" name="komoditas" >
+                {% for comodity in comodities %}
+                <option style="padding:5px" value="{{comodity.kode_komoditas}}">{{comodity.nama_komoditas}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div style="padding:15px">
+            <input type="number" placeholder="Prediksi X hari kedepan" value="1" name="hari_diprediksi" style="width: 80vw;" min="1" step="1" id="">
+        </div>
+        <div>
+            <input style="padding:10px 15px" type="submit" id="btn_prediksi" value="PREDIKSI">
+        </div>
+    </div>
+</form>
+<div class="ct-chart ct-horizontal"></div>
+<div style="display:flex;flex-direction:row;justify-content:center">
+    <div class="hidden" style="margin-top:10px" id="chart_legend">
+        <svg height="50" width="200">
+            <rect width="15" height="15" style="fill:#00B8D8;" />
+            <text x="18" y="12" fill="#00B8D8">Harga Pangan</text>
+            <rect width="15" height="15" y="30" style="fill:#C4183C;" />
+            <text x="18" y="42" fill="#C4183C">Harga Prediksi</text>
+            <!-- <rect width="50" height="50" style="fill:rgb(0,0,255);stroke-width:3;stroke:rgb(0,0,0)" /> -->
+            <!-- <text x="0" y="15" fill="red">I love SVG!</text> -->
+        </svg>
+    </div>
+</div>
+<div id="loading_notification" class="hidden">
+    <div style="display:flex;flex-direction:column;justify-content:center;height:100%;text-align:center;font-size:25pt">
+        Harap Tunggu Sebentar
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script>
+    form_prediksi = document.getElementById('form_prediksi')
+    chart_legend = document.getElementById('chart_legend')
+    loading_notification = document.getElementById('loading_notification')
+    form_prediksi.addEventListener('submit',function(e){
+        e.preventDefault()
+        console.log('test')
+    
+        form_data = new FormData(form_prediksi)
+        url = form_prediksi.getAttribute("action");
+        document.getElementById('btn_prediksi').disabled=true
+        loading_notification.classList.remove("hidden");
+
+        fetch(url,{
+            method:'post',
+            body:form_data
+        }).then((res)=>{
+            return res.json()
+        }).then((jsonRes)=>{
+            console.log(jsonRes)
+            var data = {
+                // A labels array that can contain any sort of values
+                labels: jsonRes.tanggal,
+                // Our series array that contains series objects or in this case series data arrays
+                series: [
+                    { "name": "Harga Asli", "data":jsonRes.data  },
+                    { "name": "Harga Prediksi", "data": jsonRes.prediksi },
+                ]
+            };
+            var options = {
+                //width: 1000,
+                height: 500,
+                lineSmooth: false,
+                fullWidth: true,
+                axisY: {
+                    // Lets offset the chart a bit from the labels
+                    offset: 80,
+                    labelInterpolationFnc: function(value) {
+                        return 'Rp. ' + value ;
+                    }
+                },
+                axisX: {
+                    // Lets offset the chart a bit from the labels
+                    offset: 60,
+                    
+                }
+            };
+            
+            // Create a new line chart object where as first parameter we pass in a selector
+            // that is resolving to our chart container element. The Second parameter
+            // is the actual data object.
+            new Chartist.Line('.ct-chart', data,options);
+            document.getElementById('btn_prediksi').disabled=false
+            chart_legend.classList.remove("hidden")
+            loading_notification.classList.add("hidden");
+
+        })
+    })
+</script>
+<script src="{{url_for('static',filename='js/main.js')}}"></script>
+<script src="{{url_for('static',filename='chartist/chartist.min.js')}}"></script>
+{% endblock %}
