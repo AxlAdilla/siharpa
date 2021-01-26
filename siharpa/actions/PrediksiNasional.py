@@ -7,28 +7,28 @@ from siharpa.actions.jaringan.Backpropagation import Backpropagation
 from datetime import date,timedelta
 
 class PrediksiNasional:
-    def __init__(self,komoditas,hari_prediksi,neuron_input,neuron_hidden,epoh,learn_rate,hidden_layer,normalisasi):
+    def __init__(self,data,harga_pangan,komoditas,hari_prediksi,neuron_input,neuron_hidden,epoh,learn_rate,hidden_layer,normalisasi):
         hari_diprediksi    = int(hari_prediksi)              # inisialisasi banyak hari diprediksi
-        komod_obj = Komoditas()
-        self.komoditas = komod_obj.where(komoditas)
+        # komod_obj = Komoditas()
+        # self.komoditas = komod_obj.where(komoditas)
 
-        #Hari ini
-        today = date.today()
+        # #Hari ini
+        # today = date.today()
+        self.data = data
+        # #End Date
+        # end_date = today.strftime('%d-%m-%Y')
+        
+        # #Start Date
+        # start_date = date(today.year,today.month-1,today.day).strftime('%d-%m-%Y')
 
-        #End Date
-        end_date = today.strftime('%d-%m-%Y')
+        # print('Start Date ',start_date)
+        # print('End Date ',end_date)
         
-        #Start Date
-        start_date = date(today.year,today.month-1,today.day).strftime('%d-%m-%Y')
-
-        print('Start Date ',start_date)
-        print('End Date ',end_date)
+        # self.data = IndonesiaScrap(self.komoditas.kode_komoditas,self.komoditas.nama_komoditas,hari_diprediksi,start_date,end_date)
+        # #self.hargaPangan = self.data.hargaPangan
+        # #self.tanggalPangan = self.data.tanggalPangan
         
-        self.data = IndonesiaScrap(self.komoditas.kode_komoditas,self.komoditas.nama_komoditas,hari_diprediksi,start_date,end_date)
-        #self.hargaPangan = self.data.hargaPangan
-        #self.tanggalPangan = self.data.tanggalPangan
-        
-        harga_pangan = self.data.hargaPangan
+        # harga_pangan = self.data.hargaPangan
 
         #banyaknya jumlah data input
         data_input = neuron_input
@@ -65,3 +65,4 @@ class PrediksiNasional:
         self.hargaPrediksi = []
         self.hargaPrediksi.extend(jst.data.transform_output_latih.tolist())
         self.hargaPrediksi.extend(jst.data.transform_prediksi.tolist())
+        self.akurasi = 100 - jst.meanAbsolutePrecentageError(self.hargaPangan,self.hargaPrediksi)

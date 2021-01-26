@@ -12,7 +12,7 @@ class PasarScrap:
 
         # driver = webdriver.PhantomJS('/home/axl/Documents/TA/WebApp/Scrapping/lastattempt/phantomjs-2.1.1-linux-x86_64/bin/phantomjs')
         options = Options()
-        options.headless = True
+        options.headless = False
         driver = webdriver.Firefox(options=options)
 
         url = "https://hargapangan.id/tabel-harga/pasar-tradisional/daerah"    
@@ -65,7 +65,9 @@ class PasarScrap:
         for tanggal in dataTanggal:
             isTanggal = re.search(r"\d+/\d+/\d+", tanggal.text)
             if (isTanggal):   
-                self.tanggalPangan.append(tanggal.text)
+                new_tanggal = re.sub('/+','-',tanggal.text)
+                print(new_tanggal)
+                self.tanggalPangan.append(new_tanggal)
                 
         #Hari ini
         today = date.today()

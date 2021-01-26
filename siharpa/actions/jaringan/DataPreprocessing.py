@@ -142,13 +142,13 @@ class DataPreprocessing:
         if self.tipe_normalisasi == 'maks-min':
             #transform output latih
             for index in range(len(self.data_output_latih)):
-                self.transform_output_latih[index]=self.data_output_latih[index]*(self.max_data-self.min_data)+self.min_data
+                self.transform_output_latih[index]=((self.data_output_latih[index]-0.1)/0.8)*(self.max_data-self.min_data)+self.min_data
             #transform target latih
             for index in range(len(self.data_target_latih)):
-                self.transform_target_latih[index]=self.data_target_latih[index]*(self.max_data-self.min_data)+self.min_data
+                self.transform_target_latih[index]=((self.data_target_latih[index]-0.1)/0.8)*(self.max_data-self.min_data)+self.min_data
             #transform Prediksi
             for index in range(len(self.normalisasi_prediksi)):
-                self.transform_prediksi[index]=self.transform_prediksi[index]*(self.max_data-self.min_data)+self.min_data   
+                self.transform_prediksi[index]=((self.transform_prediksi[index]-0.1)/0.8)*(self.max_data-self.min_data)+self.min_data   
             
     
         elif self.tipe_normalisasi == 'desimal':

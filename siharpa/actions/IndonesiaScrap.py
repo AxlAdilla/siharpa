@@ -43,16 +43,14 @@ class IndonesiaScrap:
         for tanggal in dataTanggal:
             isTanggal = re.search(r"\d+/\d+/\d+", tanggal.text)
             if (isTanggal):   
-                self.tanggalPangan.append(tanggal.text)
-                
+                new_tanggal = re.sub('/+','-',tanggal.text)
+                print(new_tanggal)
+                self.tanggalPangan.append(new_tanggal)
         #Hari ini
         today = date.today()
-
         for index_hari_diprediksi in range(hari_diprediksi):
             #self.tanggalPangan.append(date(today.year,today.month,today.day+index_hari_diprediksi+1).strftime('%d/%m/%Y'))
             self.tanggalPangan.append((today+timedelta(days=index_hari_diprediksi+1)).strftime('%d-%m-%Y'))
             #print(date(today.year,today.month,today.day+index_hari_diprediksi+1).strftime('%d/%m/%Y'))
-
         print(self.tanggalPangan)
-
         driver.close()

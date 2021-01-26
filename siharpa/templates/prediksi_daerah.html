@@ -59,6 +59,7 @@
                     </form>
                 </div>
                 <div class="my-4 mx-4">
+                    <div id="export_holder" class="text-right"></div>
                     <canvas id="ctx" width="400" height="200"></canvas>
                 </div>
             </div>
@@ -203,7 +204,18 @@
                         }
                     }
                 });
-
+                tanggal = JSON.stringify(jsonRes.tanggal)
+                console.log(tanggal)
+                harga_asli = JSON.stringify(jsonRes.data)
+                console.log(harga_asli)
+                akurasi = (jsonRes.akurasi)
+                waktu = (jsonRes.waktu)
+                harga_prediksi = JSON.stringify(jsonRes.prediksi)
+                console.log(harga_prediksi)
+                url = '/export/'+tanggal+'/'+harga_asli+'/'+harga_prediksi+'/'+akurasi+'/'+waktu
+                console.log(url)
+                document.getElementById('export_holder').innerHTML = '<a id="btn_export" class="btn btn-success">Cetak</a>'
+                document.getElementById('btn_export').setAttribute("href",url)
             }else{
                 swal.fire({
                     title: "Error",

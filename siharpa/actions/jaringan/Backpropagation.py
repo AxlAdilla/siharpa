@@ -310,6 +310,6 @@ class Backpropagation:
     def meanAbsolutePrecentageError(self,target,predict):
         absolute_value = 0
         for index in range(len(target)):
-            absolute_value = abs((target[index]-predict[index])/target[index])
+            absolute_value += abs((target[index]-predict[index])/target[index])
         return absolute_value/len(target)*100
     

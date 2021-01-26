@@ -1,4 +1,4 @@
-from flask import render_template,url_for,request,redirect,flash,jsonify,session
+from flask import render_template,url_for,request,redirect,flash,jsonify,session,send_file
 from siharpa import app
 from siharpa.models.Dummy import Dummy
 from siharpa.models.Komoditas import Komoditas
@@ -14,8 +14,14 @@ from siharpa.actions.PrediksiNasional import PrediksiNasional
 from siharpa.actions.PrediksiDaerah import PrediksiDaerah
 from siharpa.actions.PrediksiImport import PrediksiImport
 from datetime import date,datetime
-
-
+import pandas as pd
+import re
+from siharpa.actions.IndonesiaScrap import IndonesiaScrap
+from siharpa.actions.PasarScrap import PasarScrap
+from datetime import date,timedelta
+import time
+import csv
+import json
 
 @app.route('/')
 def index():
@@ -384,27 +390,90 @@ def api_predict(jenis):
         print(request.form)
         prediksi = Prediksi.all();
         print(prediksi)
+        harga_pangan = []
+        start_time = time.time()
         try:
-            data = PrediksiNasional(request.form['id_komoditas'],request.form['hari_prediksi'],prediksi[0].neuron_input,prediksi[0].neuron_hidden,prediksi[0].epoh,prediksi[0].learn_rate,prediksi[0].hidden_layer,prediksi[0].normalisasi)
+            hari_diprediksi    = int(request.form['hari_prediksi'])              # inisialisasi banyak hari diprediksi
+            komod_obj = Komoditas()
+            komoditas = komod_obj.where(request.form['id_komoditas'])
+
+            #Hari ini
+            today = date.today()
+
+            #End Date
+            end_date = today.strftime('%d-%m-%Y')
+            
+            print('End Date ',end_date)
+
+            if(today.month-1 == 0):
+                #Start Date
+                start_date = date(today.year-1,12,today.day).strftime('%d-%m-%Y')
+            else:
+                #Start Date
+                start_date = date(today.year,today.month-1,today.day).strftime('%d-%m-%Y')
+                
+            print('Start Date ',start_date)
+            print('End Date ',end_date)
+            
+            data = IndonesiaScrap(komoditas.kode_komoditas,komoditas.nama_komoditas,hari_diprediksi,start_date,end_date)
+            #self.hargaPangan = self.data.hargaPangan
+            #self.tanggalPangan = self.data.tanggalPangan
+            
+            harga_pangan = data.hargaPangan
+
+            pred = PrediksiNasional(data,harga_pangan,request.form['id_komoditas'],request.form['hari_prediksi'],prediksi[0].neuron_input,prediksi[0].neuron_hidden,prediksi[0].epoh,prediksi[0].learn_rate,prediksi[0].hidden_layer,prediksi[0].normalisasi)
         except ZeroDivisionError:
-            return jsonify(messages='Harga pangan stabil tidak dapat melakukan prediksi')
-        except:
-            return jsonify(messages='Terjadi error')
+            message = 'Harga pangan stabil pada Rp.'+str(int(harga_pangan[0]))+' tidak dapat melakukan prediksi'
+            return jsonify(messages=message)
+        except Exception as e:
+            return jsonify(messages=str(e))
         else:
-            return jsonify(messages='Success',data=data.hargaPangan,tanggal=data.tanggalPangan,prediksi=data.hargaPrediksi)
+            waktu = (time.time() - start_time)
+            return jsonify(messages='Success',data=pred.hargaPangan,tanggal=pred.tanggalPangan,prediksi=pred.hargaPrediksi,akurasi =  pred.akurasi,waktu = waktu)
         # data = PrediksiUmum(request.form['komoditas'],request.form['hari_diprediksi'])
     elif(jenis == 'daerah'):
         print(request.form)
         prediksi = Prediksi.all();
         print(prediksi)
+        harga_pangan =[]
+        start_time = time.time()
         try:
-            data = PrediksiDaerah(request.form['id_komoditas'],request.form['hari_prediksi'],prediksi[0].neuron_input,prediksi[0].neuron_hidden,prediksi[0].epoh,prediksi[0].learn_rate,prediksi[0].hidden_layer,prediksi[0].normalisasi,request.form['kode_provinsi'],request.form['kode_kabupaten'],request.form['kode_pasar'])
+            hari_diprediksi    = int(request.form['hari_prediksi'])              # inisialisasi banyak hari diprediksi
+            komod_obj = Komoditas()
+            komoditas = komod_obj.where(request.form['id_komoditas'])
+
+            #Hari ini
+            today = date.today()
+
+            #End Date
+            end_date = today.strftime('%d-%m-%Y')
+            
+            if(today.month-1 == 0):
+                #Start Date
+                start_date = date(today.year-1,12,today.day).strftime('%d-%m-%Y')
+            else:
+                #Start Date
+                start_date = date(today.year,today.month-1,today.day).strftime('%d-%m-%Y')
+
+            print('Start Date ',start_date)
+            print('End Date ',end_date)
+            
+            data = PasarScrap(komoditas.kode_komoditas,komoditas.nama_komoditas,hari_diprediksi,start_date,end_date,request.form['kode_provinsi'],request.form['kode_kabupaten'],request.form['kode_pasar'])
+
+            harga_pangan = data.hargaPangan
+            #self.hargaPangan = self.data.hargaPangan
+            #self.tanggalPangan = self.data.tanggalPangan
+
+            pred = PrediksiDaerah(data,harga_pangan,request.form['id_komoditas'],request.form['hari_prediksi'],prediksi[0].neuron_input,prediksi[0].neuron_hidden,prediksi[0].epoh,prediksi[0].learn_rate,prediksi[0].hidden_layer,prediksi[0].normalisasi,request.form['kode_provinsi'],request.form['kode_kabupaten'],request.form['kode_pasar'])
         except ZeroDivisionError:
-            return jsonify(messages='Harga pangan stabil tidak dapat melakukan prediksi')
-        except:
-            return jsonify(messages='Terjadi error')
+            message = 'Harga pangan stabil pada Rp.'+str(int(harga_pangan[0]))+' tidak dapat melakukan prediksi'
+            return jsonify(messages=message)
+        except Exception as e:
+            return jsonify(messages=str(e))
         else:
-            return jsonify(messages='Success',data=data.hargaPangan,tanggal=data.tanggalPangan,prediksi=data.hargaPrediksi)
+            waktu = (time.time() - start_time)
+            return jsonify(messages='Success',data=pred.hargaPangan,tanggal=pred.tanggalPangan,prediksi=pred.hargaPrediksi,akurasi =  pred.akurasi,waktu = waktu)
+            
     elif(jenis == 'import'):
         print(request.form)
         print(request.files['excel'])
@@ -412,25 +481,100 @@ def api_predict(jenis):
         print(prediksi)
 
         # data = PrediksiImport(request.form['hari_prediksi'],request.files['excel'],prediksi[0].neuron_input,prediksi[0].neuron_hidden,prediksi[0].epoh,prediksi[0].learn_rate,prediksi[0].hidden_layer,prediksi[0].normalisasi)
+        harga_pangan=[]
+        start_time = time.time()
         try:
-            data = PrediksiImport(request.form['hari_prediksi'],request.files['excel'],prediksi[0].neuron_input,prediksi[0].neuron_hidden,prediksi[0].epoh,prediksi[0].learn_rate,prediksi[0].hidden_layer,prediksi[0].normalisasi)
+            hari_diprediksi = int(request.form['hari_prediksi'])
+            data = pd.read_excel(request.files['excel'],header=None) 
+            df = pd.DataFrame(data)
+            print(df)
+            arrOfExcel = df.values.tolist()
+            print(arrOfExcel)
+            raw_harga_pangan = arrOfExcel[-1][2:]
+            if(len(raw_harga_pangan) < 6):
+                raise Exception("Data histori terlalu sedikit")
+            print('raw harga pangan ',raw_harga_pangan)
+            for harga in raw_harga_pangan:
+                x = re.findall("\d+", str(harga))
+                x=''.join(x)
+                print(x)
+                harga_pangan.append(int(x))
+            print('harga pangan',harga_pangan)
+            data = PrediksiImport(arrOfExcel,harga_pangan,request.form['hari_prediksi'],request.files['excel'],prediksi[0].neuron_input,prediksi[0].neuron_hidden,prediksi[0].epoh,prediksi[0].learn_rate,prediksi[0].hidden_layer,prediksi[0].normalisasi)
         except ZeroDivisionError:
-            return jsonify(messages='Harga pangan stabil tidak dapat melakukan prediksi')
+            message = 'Harga pangan stabil pada Rp.'+str(int(harga_pangan[0]))+' tidak dapat melakukan prediksi'
+            return jsonify(messages=message)
         except Exception as e:
             return jsonify(messages=str(e))
         else:
-            return jsonify(messages='Success',data=data.hargaPangan,tanggal=data.tanggalPangan,prediksi=data.hargaPrediksi)
+            waktu = (time.time() - start_time)
+            return jsonify(messages='Success',data=data.hargaPangan,tanggal=data.tanggalPangan,prediksi=data.hargaPrediksi,akurasi =  data.akurasi,waktu = waktu)
         
 
     else:
         print(request.form)
         print('konfigurasi')
+        harga_pangan=[]
+        start_time = time.time()
         try:
-            data = KonfigurasiPrediksi(request.form['id_komoditas'],request.form['hari_prediksi'],request.form['neuron_input'],request.form['neuron_hidden'],request.form['epoh'],request.form['learn_rate'],request.form['hidden_layer'],request.form['normalisasi'])
+            hari_diprediksi    = int(request.form['hari_prediksi'])              # inisialisasi banyak hari diprediksi
+            komod_obj = Komoditas()
+            komoditas = komod_obj.where(request.form['id_komoditas'])
+
+            #Hari ini
+            today = date.today()
+
+            #tanggal start  
+            #start_date = date(today.year,today.month-1,today.day-hari_diprediksi).strftime('%d-%m-%Y')
+            #tanggal end 
+                    #End Date
+            end_date = today.strftime('%d-%m-%Y')
+            
+            #Start Date
+            start_date = (today-timedelta(days=30+hari_diprediksi)).strftime('%d-%m-%Y')
+
+            print('Start Date ',start_date)
+            print('End Date ',end_date)
+            
+            data = IndonesiaScrap(komoditas.kode_komoditas,komoditas.nama_komoditas,0,start_date,end_date)
+            #self.hargaPangan = self.data.hargaPangan
+            #self.tanggalPangan = self.data.tanggalPangan
+            harga_pangan = data.hargaPangan
+            pred = KonfigurasiPrediksi(data,harga_pangan,request.form['id_komoditas'],request.form['hari_prediksi'],request.form['neuron_input'],request.form['neuron_hidden'],request.form['epoh'],request.form['learn_rate'],request.form['hidden_layer'],request.form['normalisasi'])
+            
         except ZeroDivisionError:
-            return jsonify(messages='Harga pangan stabil tidak dapat melakukan prediksi')
-        except:
-            return jsonify(messages='Terjadi error')
+            message = 'Harga pangan stabil pada Rp.'+str(int(harga_pangan[0]))+' tidak dapat melakukan prediksi'
+            return jsonify(messages=message)
+        except Exception as e:
+            return jsonify(messages=str(e))
         else:
-            return jsonify(messages='Success',data=data.hargaPangan,tanggal=data.tanggalPangan,prediksi=data.hargaPrediksi,akurasi =  data.akurasi,waktu = data.waktu)
+            waktu = (time.time() - start_time)
+            return jsonify(messages='Success',data=pred.hargaPangan,tanggal=pred.tanggalPangan,prediksi=pred.hargaPrediksi,akurasi =  pred.akurasi,waktu = waktu)
     # return jsonify(data=data.data.hargaPangan,tanggal=data.data.tanggalPangan)
+
+@app.route('/export/<tanggal>/<data>/<prediksi>/<akurasi>/<waktu>')
+def export(tanggal,data,prediksi,akurasi,waktu):
+    tanggal = json.loads(tanggal)
+    harga_prediksi = json.loads(prediksi)
+    harga_asli = json.loads(data)
+    # akurasi = json.loads(akurasi)
+    # waktu = json.loads(waktu)
+    with open('export.csv', 'w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(['tanggal']+tanggal)
+        writer.writerow(['harga asli']+harga_asli)
+        writer.writerow(['harga prediksi']+harga_prediksi)
+        writer.writerow(['Akurasi',akurasi])
+        writer.writerow(['Waktu',waktu])
+    try:
+        return send_file('../export.csv',mimetype='application/x-csv',attachment_filename='export.csv',as_attachment=True)
+    except Exception as e:
+        return str(e)
+
+@app.route('/contoh_file')
+def contoh_file():
+    return send_file('../contoh.xls',mimetype='application/x-csv',attachment_filename='contoh.xls',as_attachment=True)
+    
+
+
+

@@ -8,35 +8,31 @@ from datetime import date,timedelta
 import time
 
 class KonfigurasiPrediksi:
-    def getStartEndDate(self,today,hari_diprediksi):
-        #End Date
-        end_date = today.strftime('%d-%m-%Y')
-        
-        #Start Date
-        start_date = (today-timedelta(days=30+hari_diprediksi)).strftime('%d-%m-%Y')
-
-        return start_date,end_date
-
-    def __init__(self,komoditas,hari_prediksi,neuron_input,neuron_hidden,epoh,learn_rate,hidden_layer,normalisasi):
+    def __init__(self,data,harga_pangan,komoditas,hari_prediksi,neuron_input,neuron_hidden,epoh,learn_rate,hidden_layer,normalisasi):
         start_time = time.time()
         hari_diprediksi    = int(hari_prediksi)              # inisialisasi banyak hari diprediksi
-        komod_obj = Komoditas()
-        self.komoditas = komod_obj.where(komoditas)
+        # komod_obj = Komoditas()
+        # self.komoditas = komod_obj.where(komoditas)
+        self.data = data
+        # #Hari ini
+        # today = date.today()
 
-        #Hari ini
-        today = date.today()
-
-        #tanggal start  
-        #start_date = date(today.year,today.month-1,today.day-hari_diprediksi).strftime('%d-%m-%Y')
-        #tanggal end 
-        start_date,end_date = self.getStartEndDate(today,hari_diprediksi)
-        print('Start Date ',start_date)
-        print('End Date ',end_date)
+        # #tanggal start  
+        # #start_date = date(today.year,today.month-1,today.day-hari_diprediksi).strftime('%d-%m-%Y')
+        # #tanggal end 
+        #         #End Date
+        # end_date = today.strftime('%d-%m-%Y')
         
-        self.data = IndonesiaScrap(self.komoditas.kode_komoditas,self.komoditas.nama_komoditas,0,start_date,end_date)
-        #self.hargaPangan = self.data.hargaPangan
-        #self.tanggalPangan = self.data.tanggalPangan
-        harga_pangan = self.data.hargaPangan
+        # #Start Date
+        # start_date = (today-timedelta(days=30+hari_diprediksi)).strftime('%d-%m-%Y')
+
+        # print('Start Date ',start_date)
+        # print('End Date ',end_date)
+        
+        # self.data = IndonesiaScrap(self.komoditas.kode_komoditas,self.komoditas.nama_komoditas,0,start_date,end_date)
+        # #self.hargaPangan = self.data.hargaPangan
+        # #self.tanggalPangan = self.data.tanggalPangan
+        # harga_pangan = self.data.hargaPangan
 
         #banyaknya jumlah data input
         data_input = neuron_input
